@@ -28,7 +28,7 @@ mongoose
 app.use(authRoutes); // Register routes under /register
 app.use(profileRoute); // Profile routes under /profile
 
-// Example route to get all users
+// route to get all users
 app.get("/getUsers", (req, res) => {
   User.find()
     .then((users) => res.json(users))
@@ -36,9 +36,12 @@ app.get("/getUsers", (req, res) => {
 });
 
 // profile route
-// Example profile route
+
 app.get("/profile", (req, res) => {
-  // Implement your logic to fetch profile data
+  // fetch profile data
+  // User.find()
+  //   .then((users) => res.json(users))
+  //   .catch((err) => res.status(500).json(err));
   res.send("Profile data");
 });
 
