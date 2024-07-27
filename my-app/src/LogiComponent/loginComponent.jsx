@@ -42,7 +42,9 @@ const Login = () => {
       });
 
       const data = await response.json();
+      
       if (response.status === 200) {
+        
         setPopupMessage('User logged in successfully');
         setTimeout(() => {
           setPopupMessage('');
