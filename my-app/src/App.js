@@ -8,6 +8,7 @@ import ContactUsComponent from "./Pages/contactUsComponent";
 import ReadMeComponent from "./Pages/readMeComponent";
 import Login from "../src/LogiComponent/loginComponent";
 import Profile from "./profileComponent/profileComponent";
+import RecommendationsComponent from "./Pages/recommendationsComponent";
 
 function App() {
   return (
@@ -23,6 +24,10 @@ function App() {
             <Route path="/readMe" element={<ReadMeComponent />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/recommendationsComponent"
+              element={<RecommendationsComponent />}
+            />
           </Routes>
         </main>
       </div>
