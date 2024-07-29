@@ -8,10 +8,11 @@ const Footer = ({ closeMenu }) => {
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between">
           <div className="w-full md:w-1/4 mb-6 md:mb-0">
-            <h5 className="text-2xl font-semibold mb-4 text-teal-400">About Crops Recommendation System</h5>
+            <h5 className="text-2xl font-semibold mb-4 text-teal-400">About</h5>
+            <h5 className="text-xl font-semibold mb-4 text-green-400">Crops Recommendation System</h5>
             <div className="p-2 rounded-lg shadow-lg bg-slate-950">
               <p className="text-lg leading-relaxed">
-                <span className="font-bold text-teal-300">Welcome to Crops Recommendation System</span>, your one-stop solution for all your agriculture needs!
+                <span className="font-bold text-green-500">Welcome to Crops Recommendation System</span>, your one-stop solution for all your agriculture needs!
               </p>
             </div>
           </div>

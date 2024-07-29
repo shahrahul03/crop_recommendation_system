@@ -25,6 +25,7 @@ const Login = () => {
       setErrors(validationErrors);
       return;
     }
+  
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -33,9 +34,8 @@ const Login = () => {
         },
         body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
-
+  
       const data = await response.json();
-      
       if (response.status === 200) {
         setPopupMessage('User logged in successfully');
         setTimeout(() => {
@@ -51,6 +51,7 @@ const Login = () => {
       setErrors({ loginEmail: 'Server error' });
     }
   };
+  
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -59,7 +60,7 @@ const Login = () => {
       setErrors(validationErrors);
       return;
     }
-
+  
     try {
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
@@ -67,18 +68,18 @@ const Login = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: name,
-          address: address,
-          contact: contact,
+          name,
+          address,
+          contact,
           email: registerEmail,
           password: registerPassword,
         }),
       });
-
+  
       const data = await response.json();
       if (response.status === 201) {
         localStorage.setItem('authToken', data.token);
-
+  
         setPopupMessage('User registered successfully');
         setTimeout(() => {
           setPopupMessage('');
@@ -87,12 +88,15 @@ const Login = () => {
       } else {
         console.error('Error registering user:', data.message);
         setErrors({ registerEmail: data.message });
+        
+       
       }
     } catch (error) {
       console.error('Server error:', error);
       setErrors({ registerEmail: 'Server error' });
     }
   };
+  
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();

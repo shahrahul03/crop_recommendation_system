@@ -2,19 +2,18 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
 const authRoutes = require("../server/loginRoutes/auth");
-const profileRoute = require("../server/profileRoute/profile");
-const User = require("../server/models/user");
-
+const profileRoutes = require("./profileRoute/profile");
+const userProfileRoutes = require("./profileRoute/userProfileRoutes");
+const dotenv = require("dotenv");
+dotenv.config();
 const app = express();
 const port = 5000;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+// app.use(cors());
 
 app.use(
   cors({
@@ -33,41 +32,34 @@ mongoose
     process.exit(1);
   });
 
-// Session management
-app.use(
-  session({
-    secret: "your_secret_key", // Use an environment variable in production
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: mongoURI }),
-  })
-);
-
 // Middleware to set user info in session
-app.use(async (req, res, next) => {
-  if (req.session && req.session.userId) {
-    try {
-      const user = await User.findById(req.session.userId);
-      if (user) {
-        req.user = user;
-      }
-    } catch (error) {
-      console.error("Error fetching user from session:", error);
-    }
-  }
-  next();
-});
+// app.use(async (req, res, next) => {
+//   if (req.session && req.session.userId) {
+//     try {
+//       const user = await User.findById(req.session.userId);
+//       if (user) {
+//         req.user = user;
+//       }
+//     } catch (error) {
+//       console.error("Error fetching user from session:", error);
+//     }
+//   }
+//   next();
+// });
 
 // Routes
 app.use(authRoutes); // Authentication routes (register, login)
-app.use(profileRoute); // Profile routes
+app.use("/users", userProfileRoutes);
+// Serve static files from the 'uploads' directory
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
+app.use("/api/profile", profileRoutes);
 // Route to get all users
-app.get("/getUsers", (req, res) => {
-  User.find()
-    .then((users) => res.json(users))
-    .catch((err) => res.status(500).json(err));
-});
+// app.get("/getUsers", (req, res) => {
+//   User.find()
+//     .then((users) => res.json(users))
+//     .catch((err) => res.status(500).json(err));
+// });
 
 // Profile route example
 // app.get("/profile", (req, res) => {

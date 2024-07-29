@@ -1,29 +1,57 @@
 const express = require("express");
-const User = require("../models/user"); // Adjust path as needed
-
 const router = express.Router();
+const profileController = require("../controllers/profileController");
+const { profileImage } = require("../middleware/uploadMiddleware");
+const auth = require("../middleware/authMiddleware");
 
-router.get("/profile", async (req, res) => {
-  const { email } = req.query;
+/**
+ * @description To update user profile
+ * @api /api/profile/update
+ * @access PRIVATE
+ * @type PUT
+ * @return response
+ */
+router.put(
+  "/update",
+  auth,
+  profileImage.single("profileImage"),
+  profileController.updateUserProfile
+);
 
-  if (!email) {
-    return res.status(400).json({ message: "Email not provided" });
-  }
+/**
+ * @description To get the authenticated user's profile
+ * @api /api/profile/
+ * @access PRIVATE
+ * @type GET
+ * @return response
+ */
+router.get("/", auth, profileController.getUserProfile);
 
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json({
-      name: user.name,
-      email: user.email,
-      address: user.address,
-      contact: user.contact,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+/**
+ * @description To get all user profiles
+ * @api /api/profile/all
+ * @access PRIVATE
+ * @type GET
+ * @return response
+ */
+router.get("/all", auth, profileController.getAllUserProfiles);
+
+/**
+ * @description To get a user profile by ID
+ * @api /api/profile/:id
+ * @access PRIVATE
+ * @type GET
+ * @return response
+ */
+router.get("/:id", auth, profileController.getUserProfileById);
+
+/**
+ * @description To delete the authenticated user's profile
+ * @api /api/profile/delete
+ * @access PRIVATE
+ * @type DELETE
+ * @return response
+ */
+router.delete("/delete", auth, profileController.deleteUserProfile);
 
 module.exports = router;
