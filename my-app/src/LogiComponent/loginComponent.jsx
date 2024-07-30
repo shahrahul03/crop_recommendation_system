@@ -37,6 +37,8 @@ const Login = () => {
   
       const data = await response.json();
       if (response.status === 200) {
+        localStorage.setItem('authToken', data.token);
+        console.log(data.token)
         setPopupMessage('User logged in successfully');
         setTimeout(() => {
           setPopupMessage('');
@@ -78,7 +80,7 @@ const Login = () => {
   
       const data = await response.json();
       if (response.status === 201) {
-        localStorage.setItem('authToken', data.token);
+        
   
         setPopupMessage('User registered successfully');
         setTimeout(() => {

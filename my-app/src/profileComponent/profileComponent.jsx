@@ -1,128 +1,133 @@
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-// const API_URL = 'http://localhost:5000/api';
+const domain = 'http://localhost:5000';
 
-// const ProfileComponent = () => {
-//   const [profile, setProfile] = useState(null);
-//   const [bio, setBio] = useState('');
-//   const [profileImage, setProfileImage] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
+const ProfileComponent = () => {
+  const [profile, setProfile] = useState(null);
+  const [bio, setBio] = useState('');
+  const [profileImage, setProfileImage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-//   useEffect(() => {
-//     const fetchProfile = async () => {
-//       try {
-//         const token = localStorage.getItem('token');
-//         if (token) {
-//           const response = await axios.get(`${API_URL}/profile`, {
-//             headers: { Authorization: token },
-//           });
-//           setProfile(response.data.profile);
-//           setBio(response.data.profile.bio);
-//         }
-//       } catch (err) {
-//         setError(err.response.data.msg);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchProfile();
-//   }, []);
+  const fetchToken = () => localStorage.getItem('authToken');
 
-//   const handleBioChange = (e) => {
-//     setBio(e.target.value);
-//   };
+  const handleError = (err) => {
+    setError(err.response?.data?.msg || 'An error occurred');
+    setLoading(false);
+  };
 
-//   const handleProfileImageChange = (e) => {
-//     setProfileImage(e.target.files[0]);
-//   };
+  const fetchProfile = async () => {
+    try {
+      const token = fetchToken();
+      if (!token) {
+        setError('No token found');
+        return;
+      }
+      const response = await axios.get(`${domain}/api/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProfile(response.data.profile);
+      setBio(response.data.profile.bio || '');
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   const handleUpdateProfile = async () => {
-//     try {
-//       const token = localStorage.getItem('token');
-//       const formData = new FormData();
-//       formData.append('bio', bio);
-//       if (profileImage) {
-//         formData.append('profileImage', profileImage);
-//       }
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-//       const response = await axios.put(`${API_URL}/profile`, formData, {
-//         headers: {
-//           Authorization: token,
-//           'Content-Type': 'multipart/form-data',
-//         },
-//       });
-//       setProfile(response.data.profile);
-//     } catch (err) {
-//       setError(err.response.data.msg);
-//     }
-//   };
+  const handleBioChange = (e) => {
+    setBio(e.target.value);
+  };
 
-//   if (loading) {
-//     return <div className="text-center text-gray-500">Loading...</div>;
-//   }
+  const handleProfileImageChange = (e) => {
+    setProfileImage(e.target.files[0]);
+  };
 
-//   if (error) {
-//     return <div className="text-center text-red-500">Error: {error}</div>;
-//   }
+  const handleUpdateProfile = async () => {
+    setLoading(true);
+    try {
+      const token = fetchToken();
+      if (!token) {
+        setError('No token found');
+        return;
+      }
 
-//   return (
-//     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
-//       <h1 className="text-2xl font-bold mb-4">Profile</h1>
-//       <div className="mb-4">
-//         <label className="block text-gray-700 text-sm font-semibold mb-2">Bio:</label>
-//         <input
-//           type="text"
-//           value={bio}
-//           onChange={handleBioChange}
-//           className="w-full p-2 border border-gray-300 rounded"
-//         />
-//       </div>
-//       <div className="mb-4">
-//         <label className="block text-gray-700 text-sm font-semibold mb-2">Profile Image:</label>
-//         <input
-//           type="file"
-//           onChange={handleProfileImageChange}
-//           className="w-full p-2 border border-gray-300 rounded"
-//         />
-//       </div>
-//       <button
-//         onClick={handleUpdateProfile}
-//         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-//       >
-//         Update Profile
-//       </button>
-//       {profile && (
-//         <div className="mt-6">
-//           <h2 className="text-xl font-semibold mb-2">{profile.user.name}</h2>
-//           <p className="text-gray-700 mb-2">{profile.user.email}</p>
-//           <p className="text-gray-700 mb-4">{profile.bio}</p>
-//           {profile.profileImage && (
-//             <img
-//               src={profile.profileImage}
-//               alt="Profile"
-//               className="w-32 h-32 object-cover rounded-full"
-//             />
-//           )}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
+      const formData = new FormData();
+      formData.append('bio', bio);
+      if (profileImage) {
+        formData.append('profileImage', profileImage);
+      }
 
-// export default ProfileComponent;
+      const response = await axios.put(`${domain}/api/profile/update`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setProfile(response.data.profile);
+      setError(null); // Clear any previous error messages
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  if (loading) {
+    return <div className="text-center text-gray-500">Loading...</div>;
+  }
 
+  if (error) {
+    return <div className="text-center text-red-500">Error: {error}</div>;
+  }
 
+  return (
+    <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h1 className="text-2xl font-bold mb-4">Profile</h1>
+      {profile && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">{profile.user.name}</h2>
+          <p className="text-gray-700 mb-2">{profile.user.email}</p>
+          <p className="text-gray-700 mb-4">{profile.bio}</p>
+          {profile.profileImage && (
+            <img
+              src={profile.profileImage}
+              alt="Profile"
+              className="w-32 h-32 object-cover rounded-full"
+            />
+          )}
+        </div>
+      )}
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-semibold mb-2">Bio:</label>
+        <input
+          type="text"
+          value={bio}
+          onChange={handleBioChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-semibold mb-2">Profile Image:</label>
+        <input
+          type="file"
+          onChange={handleProfileImageChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <button
+        onClick={handleUpdateProfile}
+        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+      >
+        Update Profile
+      </button>
+    </div>
+  );
+};
 
-
-
-
-
-
-
-
-
-
-
+export default ProfileComponent;
