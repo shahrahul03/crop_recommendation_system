@@ -5,6 +5,7 @@ const cors = require("cors");
 const authRoutes = require("../server/loginRoutes/auth");
 const profileRoutes = require("./profileRoute/profile");
 const userProfileRoutes = require("./profileRoute/userProfileRoutes");
+
 const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
