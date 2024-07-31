@@ -35,13 +35,15 @@ const updateUserProfile = async (req, res) => {
 // Get user profile
 const getUserProfile = async (req, res) => {
   try {
-    const profile = await UserProfiles.findOne({ user: req.user._id }).populate(
+    const profile = await UserProfiles.findOne({ user: req.user.id }).populate(
       "user",
-      ["name", "email"]
+      ["name", "email", "contact", "address"]
     );
+
     if (!profile) {
       return res.status(404).json({ msg: "Profile not found" });
     }
+
     res.status(200).json({ profile });
   } catch (error) {
     sendErrorResponse(res, error);

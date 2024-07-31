@@ -1,133 +1,137 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const domain = 'http://localhost:5000';
-
-const ProfileComponent = () => {
-  const [profile, setProfile] = useState(null);
+const UserProfile = () => {
+  const [profile, setProfile] = useState({
+    user: {},
+    bio: '',
+    profileImage: '',
+    contact: '',
+    address: '',
+  });
   const [bio, setBio] = useState('');
   const [profileImage, setProfileImage] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
-  const fetchToken = () => localStorage.getItem('authToken');
-
-  const handleError = (err) => {
-    setError(err.response?.data?.msg || 'An error occurred');
-    setLoading(false);
-  };
-
-  const fetchProfile = async () => {
-    try {
-      const token = fetchToken();
-      if (!token) {
-        setError('No token found');
-        return;
-      }
-      const response = await axios.get(`${domain}/api/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProfile(response.data.profile);
-      setBio(response.data.profile.bio || '');
-    } catch (err) {
-      handleError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const token = localStorage.getItem('authToken');
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/profile', {
+          headers: {
+            'Authorization': ` ${token}`,
+          },
+        });
+        setProfile(response.data.profile);
+        setBio(response.data.profile.bio || '');
+      } catch (err) {
+        setError(err.response?.data?.msg || 'Error fetching profile');
+      }
+    };
+
     fetchProfile();
-  }, []);
+  }, [token]);
 
-  const handleBioChange = (e) => {
-    setBio(e.target.value);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('bio', bio);
+    if (profileImage) formData.append('profileImage', profileImage);
 
-  const handleProfileImageChange = (e) => {
-    setProfileImage(e.target.files[0]);
-  };
-
-  const handleUpdateProfile = async () => {
-    setLoading(true);
     try {
-      const token = fetchToken();
-      if (!token) {
-        setError('No token found');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('bio', bio);
-      if (profileImage) {
-        formData.append('profileImage', profileImage);
-      }
-
-      const response = await axios.put(`${domain}/api/profile/update`, formData, {
+      const response = await axios.put('http://localhost:5000/api/profile/update', formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
+          'Authorization': ` ${token}`,
         },
       });
-      setProfile(response.data.profile);
-      setError(null); // Clear any previous error messages
+      setProfile(prevProfile => ({
+        ...prevProfile,
+        bio: response.data.profile.bio,
+        profileImage: response.data.profile.profileImage,
+      }));
+      setSuccess('Profile updated successfully!');
+      setError(null);
+      setProfileImage(null);
+      setIsEditing(false);
     } catch (err) {
-      handleError(err);
-    } finally {
-      setLoading(false);
+      console.error('Error details:', err);
+      setError(err.response?.data?.msg || 'Error updating profile');
+      setSuccess('');
     }
   };
 
-  if (loading) {
-    return <div className="text-center text-gray-500">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500">Error: {error}</div>;
-  }
+  if (!profile.user.name) return <p className="text-gray-600">Loading...</p>;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">Profile</h1>
-      {profile && (
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">{profile.user.name}</h2>
-          <p className="text-gray-700 mb-2">{profile.user.email}</p>
-          <p className="text-gray-700 mb-4">{profile.bio}</p>
-          {profile.profileImage && (
-            <img
-              src={profile.profileImage}
-              alt="Profile"
-              className="w-32 h-32 object-cover rounded-full"
-            />
-          )}
-        </div>
-      )}
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-semibold mb-2">Bio:</label>
-        <input
-          type="text"
-          value={bio}
-          onChange={handleBioChange}
-          className="w-full p-2 border border-gray-300 rounded"
-        />
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+      <div className="flex flex-col items-center md:w-1/3 p-4 bg-gradient-to-r from-green-400 to-green-600 rounded-lg text-white">
+        {profile.profileImage && (
+          <img
+            src={profile.profileImage}
+            alt="Profile"
+            className="w-32 h-32 object-cover rounded-full mb-4"
+          />
+        )}
+        <h1 className="text-2xl font-semibold">{profile.user.name}</h1>
+        <p className="text-lg mt-2">{profile.bio}</p>
+        <button
+          onClick={() => setIsEditing(true)}
+          className="mt-4 px-4 py-2 bg-green-700 text-white font-semibold rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          Update Profile
+        </button>
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-semibold mb-2">Profile Image:</label>
-        <input
-          type="file"
-          onChange={handleProfileImageChange}
-          className="w-full p-2 border border-gray-300 rounded"
-        />
+
+      <div className="md:w-2/3 p-4 bg-gray-100 rounded-lg ">
+        <h2 className="text-xl font-semibold mb-4">Information</h2>
+        <p className="text-gray-700 mb-2"><strong>Email:</strong> {profile.user.email}</p>
+        <p className="text-gray-700 mb-2"><strong>Contact:</strong> {profile.user.contact}</p>
+        <p className="text-gray-700 mb-2"><strong>Address:</strong> {profile.user.address}</p>
+
+        {success && <p className="text-green-600 mb-4">{success}</p>}
+        {error && <p className="text-red-600 mb-4">{error}</p>}
+        
+        {isEditing && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block">
+              <span className="text-gray-700">Bio:</span>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                className="mt-1 block w-full border border-gray-300 rounded-lg p-2"
+                rows="4"
+              />
+            </label>
+            <label className="block">
+              <span className="text-gray-700">Profile Image:</span>
+              <input
+                type="file"
+                onChange={(e) => setProfileImage(e.target.files[0])}
+                className="mt-1 block w-full border border-gray-300 rounded-lg p-2"
+              />
+            </label>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              Update Profile
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="ml-2 px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            >
+              Cancel
+            </button>
+          </form>
+        )}
       </div>
-      <button
-        onClick={handleUpdateProfile}
-        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-      >
-        Update Profile
-      </button>
     </div>
   );
 };
 
-export default ProfileComponent;
+export default UserProfile;
