@@ -19,7 +19,7 @@ const Footer = ({ closeMenu }) => {
           <div className="w-full md:w-1/4 mb-6 md:mb-0">
             <h5 className="text-2xl font-semibold mb-4 text-teal-400">Customer Service</h5>
             <ul className="space-y-2">
-              <li><Link to="/login" onClick={closeMenu} className="hover:text-teal-300">Login</Link></li>
+              {/* <li><Link to="/login" onClick={closeMenu} className="hover:text-teal-300">Login</Link></li> */}
               <li><Link to="/homePage" onClick={closeMenu} className="hover:text-teal-300">Dashboard</Link></li>
               <li><Link to="/about" onClick={closeMenu} className="hover:text-teal-300">About</Link></li>
               <li><Link to="/contact" onClick={closeMenu} className="hover:text-teal-300">Contact</Link></li>

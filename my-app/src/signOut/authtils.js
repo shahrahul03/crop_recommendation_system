@@ -1,6 +1,4 @@
-import { useNavigate } from "react-router-dom"; // Ensure you have react-router-dom installed
-
-export const signOut = () => {
+export const signOut = (navigate) => {
   // Clear token from local storage
   localStorage.removeItem("authToken");
 
@@ -12,6 +10,6 @@ export const signOut = () => {
   // });
 
   // Redirect to login page
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   navigate("/login"); // Adjust the path as necessary
 };

@@ -1,137 +1,237 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import Footer from '../FooterComponent/fotterComponent';
+import Products from "../Products/Products.json";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const CropRecommendation = () => {
-  const [soilData, setSoilData] = useState({
-    ph: '',
-    nitrogen: '',
-    phosphorus: '',
-    potassium: '',
-    temperature: '',
-    humidity: '',
-    rainfall: '',
-  });
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+function Prediction() {
+  const [N, setN] = useState("");
+  const [P, setP] = useState("");
+  const [K, setK] = useState("");
+  const [temperature, setTemperature] = useState("");
+  const [humidity, setHumidity] = useState("");
+  const [ph, setPh] = useState("");
+  const [rainfall, setRainfall] = useState("");
+  const [prediction, setPrediction] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSoilData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (
+      N < 0 || N > 140 ||
+      P < 5 || P > 145 ||
+      K < 5 || K > 205 ||
+      temperature < 8.825674745 || temperature > 43.67549305 ||
+      humidity < 14.25803981 || humidity > 99.98187601 ||
+      ph < 3.504752314 || ph > 9.93509073 ||
+      rainfall < 20.21126747 || rainfall > 298.5601175
+    ) {
+      toast.error("Invalid input values.", {
+        autoClose: 1000,
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        body: JSON.stringify({
+          N, P, K, temperature, humidity, ph, rainfall,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      setPrediction(data.prediction);
+      setShowModal(true);
+      setExpanded(false);  // Reset expansion when new prediction is shown
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await axios.post('/api/predict', soilData);
-      setResult(response.data);
-    } catch (error) {
-      console.error("Error fetching prediction:", error);
-    } finally {
-      setLoading(false);
-    }
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
   };
 
   return (
     <>
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 mb-1">
-        <h1 className="text-4xl font-extrabold mb-6 text-green-900">Crop Recommendation System</h1>
-        <p className="text-lg mb-4 text-green-700">Fill Appropriate Data to Get Better Result</p>
-        <p className="text-md text-teal-800 mb-6 ">Ranges given according to research on Nepal's agriculture condition</p>
-        <div className="flex flex-col lg:flex-row w-full max-w-6xl">
-          <div className="p-6 w-full lg:w-1/2 bg-white rounded-lg shadow-md mb-6 lg:mb-0">
-            <h2 className="text-2xl font-bold mb-4 text-green-700">Crop Recommendation</h2>
+      <div className="min-h-screen flex items-center justify-center bg-green-100">
+        <div className="bg-white shadow-lg rounded-lg flex flex-col lg:flex-row max-w-5xl w-full">
+          {/* Input Fields Section */}
+          <div className="lg:w-1/2 p-8 flex flex-col justify-between">
+            <h2 className="text-3xl font-bold mb-6 text-green-700">Crops Recommendation System</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {['pH of Soil', 'nitrogen', 'phosphorus', 'potassium', 'temperature', 'humidity', 'rainfall'].map((field, index) => (
-                <div key={index} className="space-y-1">
-                  <label
-                    htmlFor={field}
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                    {field === 'pH of Soil' ? ' (3.5 - 9.9)' : ''}
-                    {field === 'nitrogen' ? ' (0 - 140 mg/kg)' : ''}
-                    {field === 'phosphorus' ? ' (5 - 145 mg/kg)' : ''}
-                    {field === 'potassium' ? ' (5 - 205 mg/kg)' : ''}
-                    {field === 'temperature' ? ' (°C) (8.8 - 43.6)' : ''}
-                    {field === 'humidity' ? ' (%) (14.2 - 99.9)' : ''}
-                    {field === 'rainfall' ? ' (mm) (20.2 - 298.5)' : ''}
-                  </label>
-                  <input
-                    type="number"
-                    id={field}
-                    name={field}
-                    value={soilData[field]}
-                    onChange={handleChange}
-                    className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition duration-300 ease-in-out transform hover:scale-105"
-                    min={
-                      field === 'pH of Soil' ? '3.5' :
-                      field === 'nitrogen' ? '0' :
-                      field === 'phosphorus' ? '5' :
-                      field === 'potassium' ? '5' :
-                      field === 'temperature' ? '8.8' :
-                      field === 'humidity' ? '14.2' :
-                      field === 'rainfall' ? '20.2' : undefined
-                    }
-                    max={
-                      field === 'pH of Soil' ? '9.9' :
-                      field === 'nitrogen' ? '140' :
-                      field === 'phosphorus' ? '145' :
-                      field === 'potassium' ? '205' :
-                      field === 'temperature' ? '43.6' :
-                      field === 'humidity' ? '99.9' :
-                      field === 'rainfall' ? '298.5' : undefined
-                    }
-                    step="0.1"
-                    required
-                  />
-                </div>
-              ))}
-              <button
-                type="submit"
-                className={`w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ease-in-out transform hover:scale-105 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={loading}
-              >
-                {loading ? 'Processing...' : 'Get Recommendation'}
+              <label className="block">
+                <span className="text-gray-700">Nitrogen Range: 0-140 eg. 50.55</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full p-3 border border-green-300 rounded-md"
+                  placeholder="N:(Ratio of nitrogen content in the soil)"
+                  value={N}
+                  onChange={(e) => setN(e.target.value)}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700">Phosphorous Range: 5-145 eg. 53.36</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full p-3 border border-green-300 rounded-md"
+                  placeholder="P:(Ratio of phosphorous content in the soil)"
+                  value={P}
+                  onChange={(e) => setP(e.target.value)}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700">Potassium Range: 5-205 eg. 48.15</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full p-3 border border-green-300 rounded-md"
+                  placeholder="K:(Ratio of Potassium content in soil)"
+                  value={K}
+                  onChange={(e) => setK(e.target.value)}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700">Temperature Range: 8.8-43.6 eg. 25.62</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full p-3 border border-green-300 rounded-md"
+                  placeholder="Temperature"
+                  value={temperature}
+                  onChange={(e) => setTemperature(e.target.value)}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700">Humidity Range %: 14.2-99.9 eg. 71.48</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full p-3 border border-green-300 rounded-md"
+                  placeholder="Humidity"
+                  value={humidity}
+                  onChange={(e) => setHumidity(e.target.value)}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700">PH Range: 3.5-9.9 eg. 6.47</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full p-3 border border-green-300 rounded-md"
+                  placeholder="Ph"
+                  value={ph}
+                  onChange={(e) => setPh(e.target.value)}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700">Rainfall Range: 20.2-298.5 eg. 103.46</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full p-3 border border-green-300 rounded-md"
+                  placeholder="Rainfall"
+                  value={rainfall}
+                  onChange={(e) => setRainfall(e.target.value)}
+                />
+              </label>
+
+              <button 
+                type="submit" 
+                className="mt-4 w-full p-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition-colors">
+                Submit
               </button>
             </form>
           </div>
-          <div className="p-6 w-full lg:w-1/2 bg-white rounded-lg shadow-md m-1">
-            <h2 className="text-2xl font-bold mb-4 text-green-700">Rules and Regulations</h2>
-            <ul className="list-disc pl-5 space-y-2 text-gray-700">
-              <li>Ensure accurate data entry for best results.</li>
-              <li>pH of Soil should be within the range of 3.5 to 9.9.</li>
-              <li>Nitrogen levels should be between 0 to 140 mg/kg.</li>
-              <li>Phosphorus levels should be between 5 to 145 mg/kg.</li>
-              <li>Potassium levels should be between 5 to 205 mg/kg.</li>
-              <li>Temperature should be within the range of 8.8 to 43.6°C.</li>
-              <li>Humidity levels should be between 14.2 to 99.9%.</li>
-              <li>Rainfall should be within the range of 20.2 to 298.5 mm.</li>
-              <li>Regularly update soil data to get accurate recommendations.</li>
-              <li>Consult local agricultural experts for additional advice.</li>
-            </ul>
-          </div>
-        </div>
-        {result && (
-          <div className="p-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl mx-auto bg-white rounded-lg shadow-md mt-6">
-            <h2 className="text-2xl font-bold mb-4 text-green-700">Recommended Crops</h2>
-            <div className="bg-green-50 p-4 rounded-lg shadow-inner">
-              <ul className="list-disc pl-5 space-y-2">
-                {result.crops.map((crop, index) => (
-                  <li key={index} className="text-gray-700">{crop}</li>
-                ))}
+
+          {/* Rules and Regulations Section */}
+          <div className="lg:w-1/2 h-full p-8 bg-green-100 flex flex-col justify-between">
+            <div className="text-gray-700">
+              <h2 className="text-3xl font-bold mb-4 text-green-700">Rules and Regulations</h2>
+              <ul className="list-disc list-inside space-y-2">
+                <li className="font-bold">Provide Accurate Data:</li> 
+                <span>Input precise information about your soil conditions for the best recommendations.</span>
+                <li className="font-bold">Understand the Recommendations:</li>
+                <span>Know why certain crops are recommended based on your conditions.</span>
+                <li className="font-bold">Follow Local Regulations:</li>
+                <span>Ensure recommended crops are allowed in your area.</span>
+                <li className="font-bold">Regular Monitoring:</li>
+                <span>Monitor crops and soil conditions throughout the season.</span>
+                <li className="font-bold">Combine with Expert Advice:</li>
+                <span>Use the system's recommendations alongside expert advice.</span>
+                <li className="font-bold">Practice Crop Rotation:</li>
+                <span>Follow crop rotation suggestions to maintain soil health.</span>
+                <li className="font-bold">Stay Informed:</li>
+                <span>Keep up-to-date with system updates and improvements.</span>
+                <li className="font-bold">Plan for Market Demand:</li>
+                <span>Consider market demand for recommended crops.</span>
+                <li className="font-bold">Use Sustainable Practices:</li>
+                <span>Follow sustainable farming practices.</span>
+                <li className="font-bold">Prepare for Variability:</li>
+                <span>Have backup plans for unexpected environmental changes.</span>
               </ul>
             </div>
           </div>
-        )}
+        </div>
       </div>
-      <Footer/>
+
+      {/* Modal for Description */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className={`bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full ${expanded ? 'max-h-screen' : 'max-h-[400px]'} overflow-auto relative`}>
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <h2 className="text-2xl font-bold mb-4 text-green-700">Crop Description</h2>
+            <p className="text-gray-700">
+              {Products.plants.find((plant) => plant.name === prediction)?.description || "No description available."}
+            </p>
+            {!expanded && (
+              <button
+                className="mt-4 text-green-500 hover:underline"
+                onClick={toggleExpand}
+              >
+                Read More
+              </button>
+            )}
+            {expanded && (
+              <div>
+                <p className="mt-4 text-gray-700">
+                  {Products.plants.find((plant) => plant.name === prediction)?.detailedInfo || "No additional information available."}
+                </p>
+                <button
+                  className="mt-4 text-green-500 hover:underline"
+                  onClick={toggleExpand}
+                >
+                  Show Less
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <footer className='Footer'>
+        <Footer />
+      </footer>
+      <ToastContainer />
     </>
   );
-};
+}
 
-export default CropRecommendation;
+export default Prediction;

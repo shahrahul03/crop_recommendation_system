@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import { FaGoogle } from 'react-icons/fa';
 import { validateLoginForm, validateRegistrationForm, validateForgotPasswordForm } from './validation'; // Adjust path as needed
 import { useNavigate } from 'react-router-dom';
 import Popup from '../LogiComponent/popupComponent';
+import { AuthContext } from '../AuthContext/AuthContext';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +17,7 @@ const Login = () => {
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
   const [popupMessage, setPopupMessage] = useState('');
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -38,12 +40,13 @@ const Login = () => {
       const data = await response.json();
       if (response.status === 200) {
         localStorage.setItem('authToken', data.token);
-        console.log(data.token)
+        login(data.token);
         setPopupMessage('User logged in successfully');
         setTimeout(() => {
           setPopupMessage('');
           navigate('/homepage');
-        }, 3000);
+          
+        }, 1000);
       } else {
         console.error('Error logging in:', data.message);
         setErrors({ loginEmail: data.message });
