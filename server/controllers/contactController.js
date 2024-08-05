@@ -17,24 +17,47 @@ exports.createContact = async (req, res) => {
     res.status(500).json({ error: "Server error. Please try again later." });
   }
 };
+
+//
+
 function isNew(createdAt) {
-  // Example logic: Consider messages created within the last 24 hours as new
-  const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  const oneDay = 24 * 60 * 60 * 1000;
   return new Date() - new Date(createdAt) < oneDay;
 }
 
 exports.getAllContact = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit 10
+    const { page = 1, limit = 10, name, startDate, endDate } = req.query;
     const skip = (page - 1) * limit;
 
-    const contacts = await Contact.find().skip(skip).limit(parseInt(limit));
-    const totalContacts = await Contact.countDocuments();
+    const query = {};
+
+    if (name) {
+      query.name = { $regex: name, $options: "i" };
+    }
+
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+      };
+    } else if (startDate) {
+      query.date = { $gte: new Date(startDate) };
+    } else if (endDate) {
+      query.date = {
+        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+      };
+    }
+
+    const contacts = await Contact.find(query)
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    const totalContacts = await Contact.countDocuments(query);
     const totalPages = Math.ceil(totalContacts / limit);
 
-    // Optionally mark messages as new if you have such logic
     contacts.forEach((contact) => {
-      contact.isNew = isNew(contact.createdAt); // Add your logic here
+      contact.isNew = isNew(contact.date);
     });
 
     res.json({ contacts, totalPages });
@@ -43,10 +66,3 @@ exports.getAllContact = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// Helper function to determine if a contact is new
-function isNew(createdAt) {
-  // Example logic: Consider messages created within the last 24 hours as new
-  const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  return new Date() - new Date(createdAt) < oneDay;
-}
