@@ -1,5 +1,5 @@
 import React from 'react';
-import MyImage from "../img/myImage.jpeg";
+import MyImage from "../../img/myImage.jpeg";
 import Footer from '../FooterComponent/fotterComponent';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';

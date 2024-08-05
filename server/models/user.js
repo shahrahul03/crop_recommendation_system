@@ -24,6 +24,11 @@ const UserSchema = new mongoose.Schema({
     required: true,
     match: [/^\d{10}$/, "Contact number must be 10 digits long"], // Ensure contact is 10 digits
   },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 });
 
 // Middleware to hash password before saving

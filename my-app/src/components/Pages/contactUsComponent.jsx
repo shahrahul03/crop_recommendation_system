@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Footer from '../FooterComponent/fotterComponent';
 
 const ContactUsComponent = () => {
@@ -17,9 +19,32 @@ const ContactUsComponent = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
+    try {
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        toast.success('Message sent successfully!');
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: '',
+        });
+      } else {
+        toast.error('Error sending message. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error sending message. Please try again later.');
+    }
   };
 
   return (
@@ -68,8 +93,8 @@ const ContactUsComponent = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                     required
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
                   />
                 </div>
                 <div>
@@ -80,8 +105,8 @@ const ContactUsComponent = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                     required
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
                   />
                 </div>
                 <div>
@@ -92,8 +117,8 @@ const ContactUsComponent = () => {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                     required
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
                   />
                 </div>
                 <div>
@@ -103,15 +128,15 @@ const ContactUsComponent = () => {
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    rows="4"
-                    className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                     required
-                  ></textarea>
+                    rows="4"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  />
                 </div>
                 <div>
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 w-full"
                   >
                     Send Message
                   </button>
@@ -122,6 +147,7 @@ const ContactUsComponent = () => {
         </div>
         <Footer />
       </div>
+      <ToastContainer />
     </>
   );
 };

@@ -2,8 +2,9 @@ import React, { useState,useContext } from 'react';
 import { FaGoogle } from 'react-icons/fa';
 import { validateLoginForm, validateRegistrationForm, validateForgotPasswordForm } from './validation'; // Adjust path as needed
 import { useNavigate } from 'react-router-dom';
-import Popup from '../LogiComponent/popupComponent';
-import { AuthContext } from '../AuthContext/AuthContext';
+import Popup from './popupComponent';
+import { AuthContext } from '../../AuthContext/AuthContext';
+
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,6 +20,7 @@ const Login = () => {
   const [popupMessage, setPopupMessage] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,16 +38,25 @@ const Login = () => {
         },
         body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
-  
+      
       const data = await response.json();
-      if (response.status === 200) {
-        localStorage.setItem('authToken', data.token);
-        login(data.token);
+  
+      if (response.ok) { // Check if the response is successful
+        const { token, role } = data; // Extract token and role from data
+  
+        localStorage.setItem('authToken', token);
+        login(token);
+  
+        // Navigate based on the role
+        if (role === 'admin') {
+          navigate('/admin-contact'); // Navigate to admin contact page for admin users
+        } else {
+          navigate('/homepage'); // Navigate to homepage for regular users
+        }
+  
         setPopupMessage('User logged in successfully');
         setTimeout(() => {
           setPopupMessage('');
-          navigate('/homepage');
-          
         }, 1000);
       } else {
         console.error('Error logging in:', data.message);
@@ -56,6 +67,8 @@ const Login = () => {
       setErrors({ loginEmail: 'Server error' });
     }
   };
+  
+  
   
 
   const handleRegister = async (e) => {

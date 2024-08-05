@@ -9,7 +9,7 @@ dotenv.config();
 // Register route
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, address, contact } = req.body;
+    const { name, email, password, address, contact, role } = req.body;
 
     if (!name || !email || !password || !address || !contact) {
       return res.status(400).json({ message: "All fields are required" });
@@ -26,6 +26,7 @@ router.post("/register", async (req, res) => {
       password,
       address,
       contact,
+      role,
     });
 
     // Hash password before saving
@@ -66,6 +67,7 @@ router.post("/login", async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        role: user.role,
       },
     };
 
@@ -79,6 +81,7 @@ router.post("/login", async (req, res) => {
           msg: "User logged in successfully",
           token: `Bearer ${token}`,
           user: user,
+          role: user.role,
         });
       }
     );

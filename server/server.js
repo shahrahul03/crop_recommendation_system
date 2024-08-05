@@ -5,8 +5,10 @@ const cors = require("cors");
 const authRoutes = require("../server/loginRoutes/auth");
 const profileRoutes = require("./profileRoute/profile");
 const userProfileRoutes = require("./profileRoute/userProfileRoutes");
+const contactRoutes = require("./Routes/contactRoutes");
 
 const dotenv = require("dotenv");
+const { authorizeRole } = require("./middleware/authorizationMiddleware");
 dotenv.config();
 const app = express();
 const port = 5000;
@@ -40,9 +42,8 @@ app.use("/users", userProfileRoutes);
 app.use("/uploads", express.static(__dirname + "/uploads"));
 
 app.use("/api/profile", profileRoutes);
-
-//
-
+app.use("/api", contactRoutes);
+app.use("/api/admin", contactRoutes);
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

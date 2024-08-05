@@ -2,7 +2,7 @@ import React, { useContext, useState, Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { BellIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../AuthContext/AuthContext';
+import { AuthContext } from '../../AuthContext/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
