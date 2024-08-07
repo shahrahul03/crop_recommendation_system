@@ -6,13 +6,15 @@ import { AuthContext } from '../../AuthContext/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, isAdmin, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSignOut = () => {
     logout();
     navigate('/login');
   };
+
+  console.log('Navbar render', { isAuthenticated, isAdmin });
 
   return (
     <nav className="bg-white shadow">
@@ -23,34 +25,39 @@ const Navbar = () => {
               {/* <Logo className="h-8 w-8 text-indigo-600" /> */}
             </div>
             <div className="hidden md:flex space-x-8 ml-10">
-              <Link to="/homePage" className="text-gray-900 font-medium hover:text-indigo-600">
+              <Link to="/homePage" className="text-gray-900 font-medium hover:text-green-600">
                 Dashboard
               </Link>
-              <Link to="/about" className="text-gray-900 font-medium hover:text-indigo-600">
+              <Link to="/about" className="text-gray-900 font-medium hover:text-green-600">
                 About Us
               </Link>
-              <Link to="/contact" className="text-gray-900 font-medium hover:text-indigo-600">
+              <Link to="/contact" className="text-gray-900 font-medium hover:text-green-600">
                 Contact Us
               </Link>
-              <Link to="/readMe" className="text-gray-900 font-medium hover:text-indigo-600">
+              <Link to="/readMe" className="text-gray-900 font-medium hover:text-green-600">
                 Read Me
               </Link>
               {!isAuthenticated && (
-                <Link to="/login" className="text-gray-900 font-medium hover:text-indigo-600">
+                <Link to="/login" className="text-gray-900 font-medium hover:text-green-600">
                   Login
+                </Link>
+              )}
+              {isAdmin && (
+                <Link to="/admin-contact" className="text-gray-900 font-medium hover:text-green-600">
+                  Admin Dashboard
                 </Link>
               )}
             </div>
           </div>
           <div className="hidden md:flex items-center pb-3 space-x-4">
-            <button className="bg-white p-1 rounded-full text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button className="bg-white p-1 rounded-full text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
               <BellIcon className="h-6 w-6" />
             </button>
 
             {isAuthenticated && (
               <Menu as="div" className="relative">
                 <div>
-                  <Menu.Button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <Menu.Button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     <img
                       className="h-8 w-8 rounded-full"
                       src="https://via.placeholder.com/32"
@@ -108,7 +115,7 @@ const Navbar = () => {
           <div className="-mr-2 pb-2 pr-2 flex md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="bg-white rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="bg-white rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               <span className="sr-only">Open main menu</span>
               {isOpen ? (
@@ -124,21 +131,26 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link to="/homePage" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-indigo-600">
+            <Link to="/homePage" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-green-600">
               Dashboard
             </Link>
-            <Link to="/about" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-indigo-600">
+            <Link to="/about" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-green-600">
               About Us
             </Link>
-            <Link to="/contact" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-indigo-600">
+            <Link to="/contact" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-green-600">
               Contact Us
             </Link>
-            <Link to="/readMe" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-indigo-600">
+            <Link to="/readMe" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-green-600">
               Read Me
             </Link>
             {!isAuthenticated && (
-              <Link to="/login" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-indigo-600">
+              <Link to="/login" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-green-600">
                 Login
+              </Link>
+            )}
+            {isAdmin && (
+              <Link to="/admin-contact" className="text-gray-900 font-medium block px-3 py-2 rounded-md text-base hover:text-green-600">
+                Admin Dashboard
               </Link>
             )}
           </div>
@@ -152,20 +164,17 @@ const Navbar = () => {
                   <div className="text-base font-medium text-gray-800">User Name</div>
                   <div className="text-sm font-medium text-gray-500">user@example.com</div>
                 </div>
-                <button className="ml-auto bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  <BellIcon className="h-6 w-6" />
-                </button>
               </div>
-              <div className="mt-3 px-2 space-y-1">
-                <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-indigo-600">
+              <div className="mt-3 space-y-1">
+                <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-green-600">
                   Your Profile
                 </Link>
-                <Link to="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-indigo-600">
+                <Link to="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-green-600">
                   Settings
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="block px-4 w-full   py-2 rounded-md text-base font-medium text-gray-900 hover:text-indigo-600"
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-green-600"
                 >
                   Sign out
                 </button>

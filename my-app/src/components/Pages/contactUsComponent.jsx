@@ -52,7 +52,7 @@ const ContactUsComponent = () => {
       <div className="flex flex-col min-h-screen bg-gray-100">
         <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl w-full bg-white rounded-lg shadow-md overflow-hidden flex flex-col lg:flex-row">
-            <div className="w-full lg:w-2/5 bg-green-600 p-8">
+            <div className="w-full lg:w-2/5 bg-gradient-to-b from-green-500 to-green-900  p-8">
               <h2 className="text-2xl font-extrabold text-white mb-6">Let's get in touch</h2>
               <p className="text-green-100 mb-4">We're open for any suggestion or just to have a chat</p>
               <ul className="space-y-4">
@@ -78,7 +78,7 @@ const ContactUsComponent = () => {
                   <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M22.54,2.46a5.8,5.8,0,0,0-4.07-1.61c-1.24,0-2.37.51-3.46,1.1a11.66,11.66,0,0,0-3.5,3.11,11.69,11.69,0,0,0-3.46-3.09C6.83,1.34,5.74.82,4.5.82A5.76,5.76,0,0,0,.42,2.42c-.73.81-1.27,1.79-1.36,2.91A5.45,5.45,0,0,0,0,7.74V21.88a1,1,0,0,0,1,1H21.88a1,1,0,0,0,1-1V7.74a5.47,5.47,0,0,0-1.36-2.91ZM20,20H2V7.74a3.44,3.44,0,0,1,.6-1.87,3.78,3.78,0,0,1,2.66-1.3c.91,0,1.83.42,2.74,1.16a9.85,9.85,0,0,1,2.94,3.2A1,1,0,0,0,12.6,9.27a10.2,10.2,0,0,1,3.05-3.17C17.53,4.57,18.45,4.15,19.36,4.15a3.77,3.77,0,0,1,2.66,1.3A3.42,3.42,0,0,1,22.4,7.74V20Z" />
                   </svg>
-                  <span>Website: www.crs.com.np</span>
+                  <span>Website: www.crs.com</span>
                 </li>
               </ul>
             </div>

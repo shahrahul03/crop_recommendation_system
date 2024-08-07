@@ -1,10 +1,33 @@
-import React, { useState,useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { FaGoogle } from 'react-icons/fa';
-import { validateLoginForm, validateRegistrationForm, validateForgotPasswordForm } from './validation'; // Adjust path as needed
 import { useNavigate } from 'react-router-dom';
-import Popup from './popupComponent';
 import { AuthContext } from '../../AuthContext/AuthContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+// Sample validation functions (replace with your actual validation logic)
+const validateLoginForm = (email, password) => {
+  const errors = {};
+  if (!email) errors.email = 'Email is required';
+  if (!password) errors.password = 'Password is required';
+  return errors;
+};
+
+const validateRegistrationForm = (name, address, contact, email, password) => {
+  const errors = {};
+  if (!name) errors.name = 'Name is required';
+  if (!address) errors.address = 'Address is required';
+  if (!contact) errors.contact = 'Contact is required';
+  if (!email) errors.email = 'Email is required';
+  if (!password) errors.password = 'Password is required';
+  return errors;
+};
+
+const validateForgotPasswordForm = (email) => {
+  const errors = {};
+  if (!email) errors.email = 'Email is required';
+  return errors;
+};
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,10 +40,8 @@ const Login = () => {
   const [address, setAddress] = useState('');
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
-  const [popupMessage, setPopupMessage] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,7 +50,7 @@ const Login = () => {
       setErrors(validationErrors);
       return;
     }
-  
+
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -38,38 +59,34 @@ const Login = () => {
         },
         body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
-      
+
       const data = await response.json();
-  
-      if (response.ok) { // Check if the response is successful
-        const { token, role } = data; // Extract token and role from data
-  
+
+      if (response.ok) {
+        const { token, role } = data;
+
         localStorage.setItem('authToken', token);
-        login(token);
-  
-        // Navigate based on the role
+        login(token, role);
+
         if (role === 'admin') {
-          navigate('/admin-contact'); // Navigate to admin contact page for admin users
+          navigate('/admin-contact');
         } else {
-          navigate('/homepage'); // Navigate to homepage for regular users
+          navigate('/homepage');
         }
-  
-        setPopupMessage('User logged in successfully');
-        setTimeout(() => {
-          setPopupMessage('');
-        }, 1000);
+      
+
+        toast.success('User logged in successfully', { autoClose: 3000 });
       } else {
         console.error('Error logging in:', data.message);
         setErrors({ loginEmail: data.message });
+        toast.error(data.message, { autoClose: 3000 });
       }
     } catch (error) {
       console.error('Server error:', error);
       setErrors({ loginEmail: 'Server error' });
+      toast.error('Server error', { autoClose: 3000 });
     }
   };
-  
-  
-  
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -78,7 +95,7 @@ const Login = () => {
       setErrors(validationErrors);
       return;
     }
-  
+
     try {
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
@@ -93,28 +110,24 @@ const Login = () => {
           password: registerPassword,
         }),
       });
-  
+
       const data = await response.json();
       if (response.status === 201) {
-        
-  
-        setPopupMessage('User registered successfully');
+        toast.success('User registered successfully', { autoClose: 3000 });
         setTimeout(() => {
-          setPopupMessage('');
           setIsLogin(true);
         }, 3000);
       } else {
         console.error('Error registering user:', data.message);
         setErrors({ registerEmail: data.message });
-        
-       
+        toast.error(data.message, { autoClose: 3000 });
       }
     } catch (error) {
       console.error('Server error:', error);
       setErrors({ registerEmail: 'Server error' });
+      toast.error('Server error', { autoClose: 3000 });
     }
   };
-  
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -135,30 +148,30 @@ const Login = () => {
 
       const data = await response.json();
       if (response.status === 200) {
-        setPopupMessage('Password reset email sent');
+        toast.success('Password reset email sent', { autoClose: 3000 });
         setTimeout(() => {
-          setPopupMessage('');
           setIsForgotPassword(false);
         }, 3000);
       } else {
         console.error('Error sending reset email:', data.message);
         setErrors({ loginEmail: data.message });
+        toast.error(data.message, { autoClose: 3000 });
       }
     } catch (error) {
       console.error('Server error:', error);
       setErrors({ loginEmail: 'Server error' });
+      toast.error('Server error', { autoClose: 3000 });
     }
   };
 
   const handleGoogleLogin = () => {
-    // Handle Google login logic here
     console.log("Google login clicked");
+    toast.info("Google login is not implemented yet.", { autoClose: 3000 });
   };
 
   return (
     <div className="min-h-screen flex w-full items-center justify-center bg-gradient-to-r from-blue-50 to-blue-100">
       <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-4xl flex flex-col md:flex-row">
-        {/* Left Side - Image and Welcome Message */}
         <div className="md:w-1/2 p-6 bg-green-50 rounded-lg shadow-lg flex flex-col items-center justify-center">
           <h2 className="text-2xl font-bold text-green-600 mb-4">Crop Recommendation System</h2>
           <p className="text-gray-700 mb-4 text-center">
@@ -171,12 +184,11 @@ const Login = () => {
           />
         </div>
 
-        {/* Right Side - Form */}
         <div className="w-full md:w-1/2 p-6">
           <h2 className="text-3xl font-bold mb-6 text-center text-green-600">
             {isLogin ? 'Sign In' : isForgotPassword ? 'Forgot Password' : 'Register'}
           </h2>
-          
+
           {isForgotPassword ? (
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div>
@@ -245,11 +257,13 @@ const Login = () => {
                 <input
                   type="email"
                   placeholder="E-mail"
-                  className={`w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-green-500 focus:outline-none ${errors.loginEmail ? 'border-red-500' : ''}`}
+                  className={`w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-green-500 focus:outline-none ${errors.loginEmail || errors.registerEmail ? 'border-red-500' : ''}`}
                   value={isLogin ? loginEmail : registerEmail}
-                  onChange={(e) => isLogin ? setLoginEmail(e.target.value) : setRegisterEmail(e.target.value)}
+                  onChange={(e) => (isLogin ? setLoginEmail(e.target.value) : setRegisterEmail(e.target.value))}
                 />
-                {errors.loginEmail && <span className="text-red-500 text-sm">{errors.loginEmail}</span>}
+                {(errors.loginEmail || errors.registerEmail) && (
+                  <span className="text-red-500 text-sm">{isLogin ? errors.loginEmail : errors.registerEmail}</span>
+                )}
               </div>
               <div>
                 <input
@@ -257,10 +271,11 @@ const Login = () => {
                   placeholder="Password"
                   className={`w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-green-500 focus:outline-none ${errors.loginPassword || errors.registerPassword ? 'border-red-500' : ''}`}
                   value={isLogin ? loginPassword : registerPassword}
-                  onChange={(e) => isLogin ? setLoginPassword(e.target.value) : setRegisterPassword(e.target.value)}
+                  onChange={(e) => (isLogin ? setLoginPassword(e.target.value) : setRegisterPassword(e.target.value))}
                 />
-                {errors.loginPassword && <span className="text-red-500 text-sm">{errors.loginPassword}</span>}
-                {errors.registerPassword && <span className="text-red-500 text-sm">{errors.registerPassword}</span>}
+                {(errors.loginPassword || errors.registerPassword) && (
+                  <span className="text-red-500 text-sm">{isLogin ? errors.loginPassword : errors.registerPassword}</span>
+                )}
               </div>
               <button
                 type="submit"
@@ -269,54 +284,41 @@ const Login = () => {
                 {isLogin ? 'Sign In' : 'Register'}
               </button>
               <div className="text-center mt-4">
-                {isLogin ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setIsForgotPassword(true)}
-                      className="text-green-500 hover:underline"
-                    >
-                      Forgot Password?
-                    </button>
-                    <div className="mt-4 text-gray-600">
-                      <p className="text-center">
-                        Don't have an account
-                        <button
-                          type="button"
-                          onClick={() => setIsLogin(false)}
-                          className="text-green-500 hover:underline ml-2" // Added ml-2 for margin-left
-                        >
-                          Register?
-                        </button>
-                      </p>
-                    </div>
-
-                    
-                  </>
-                ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-green-500 hover:underline"
+                >
+                  {isLogin ? 'Create an account' : 'Already have an account? Sign In'}
+                </button>
+                {isLogin && (
                   <button
                     type="button"
-                    onClick={() => setIsLogin(true)}
-                    className="text-green-500 hover:underline"
+                    onClick={() => setIsForgotPassword(true)}
+                    className="ml-4 text-green-500 hover:underline"
                   >
-                    Already have an account? Sign In
+                    Forgot password?
                   </button>
                 )}
               </div>
             </form>
           )}
-          <div className="flex items-center justify-center mt-4">
-            <button
-              onClick={handleGoogleLogin}
-              className="flex items-center justify-center px-4 py-2 border rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
-            >
-              <FaGoogle className="mr-2" />
-              Sign in with Google
-            </button>
+
+          <div className="flex items-center mt-4">
+            <hr className="flex-grow border-gray-300" />
+            <span className="mx-4 text-gray-500">OR</span>
+            <hr className="flex-grow border-gray-300" />
           </div>
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full p-3 mt-4 bg-red-500 text-white rounded-lg flex items-center justify-center transform transition hover:scale-105"
+          >
+            <FaGoogle className="mr-2" />
+            Sign In with Google
+          </button>
         </div>
       </div>
-      {popupMessage && <Popup message={popupMessage} />}
+      <ToastContainer />
     </div>
   );
 };

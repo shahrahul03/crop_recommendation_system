@@ -11,7 +11,8 @@ import Profile from "./components/profileComponent/profileComponent";
 import RecommendationsComponent from "./components/Pages/recommendationsComponent";
 import { AuthProvider } from "./AuthContext/AuthContext";
 import AdminContactPageComponent from "./components/AdminContagePageComponent/AdminContagePageComponent";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <>
@@ -39,6 +40,7 @@ function App() {
               </Routes>
             </main>
           </div>
+          <ToastContainer />
         </Router>
       </AuthProvider>
     </>

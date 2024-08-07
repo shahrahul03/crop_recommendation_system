@@ -1,30 +1,29 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import {  useNavigate } from 'react-router-dom';
 import Footer from '../FooterComponent/fotterComponent';
-// import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
 import Weather from '../WeatherComponent/weatherComponent';
 import Img1 from "../../img/himg1.png";
 import Img2 from "../../img/himg2.png";
 import Img3 from "../../img/himg3.png";
+import { AuthContext } from '../../AuthContext/AuthContext';
 
 function HomePage() {
-  // Slider settings for react-slick
-  // const sliderSettings = {
-  //   dots: true,
-  //   infinite: true,
-  //   speed: 1000,
-  //   slidesToShow: 1,
-  //   slidesToScroll: 1,
-  //   autoplay: true,
-  //   autoplaySpeed: 3000,
-  //   arrows: false,
-  // };
+  const { isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate(); // Hook to programmatically navigate
+
+  // Function to handle button click
+  const handleButtonClick = () => {
+    if (isAuthenticated) {
+      navigate('/recommendationsComponent');
+    } else {
+      navigate('/login'); // Redirect to login if not authenticated
+    }
+  };
 
   return (
     // Main container
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-green-100">
       {/* Weather Component */}
       <div className="hidden lg:block absolute top-11 left-0 m-4 z-50">
         <Weather />
@@ -34,7 +33,7 @@ function HomePage() {
       <main className="flex flex-col items-center justify-center flex-1 text-center p-4 sm:p-8 lg:p-12">
         {/* Header */}
         <h1 className="text-3xl sm:text-3xl font-semibold text-green-800 mb-3 max-w-6xl mx-auto">
-          Welcome to the Crops Recommendation System
+          Crops Recommendation System
         </h1>
         <p className="text-lg sm:text-base text-green-700 mb-7 max-w-4xl mx-auto">
           Discover the best crops to grow based on your location and soil conditions.
@@ -42,7 +41,7 @@ function HomePage() {
 
         {/* Explore Section Heading */}
         <h2 className="text-2xl sm:text-2xl font-semibold text-green-800 mb-5 max-w-4xl mx-auto">
-          Continue to Explore the Benefits of Crs
+          Explore the Benefits of Crs
         </h2>
 
         {/* Image and Content Sections */}
@@ -149,9 +148,12 @@ function HomePage() {
         </div>
 
         {/* Get Crop Recommendations Button */}
-        <Link to="/recommendationsComponent" className="bg-green-800 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-green-900 transition-colors duration-300 mt-8">
+        <button
+          onClick={handleButtonClick}
+          className="bg-gradient-to-r from-green-500 to-green-900 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-green-900 transition-colors duration-300 mt-8"
+        >
           Get Crop Recommendations
-        </Link>
+        </button>
       </main>
 
       <footer className="mt-auto">
